@@ -91,69 +91,71 @@ def main():
         # CSVファイルをDataFrameとして読み込む
         data = pd.read_csv(uploaded_file)
 
-    st.warning("ticker,getPrice,quantity の要素のみのcsvファイルを用意して下さい")
-    st.header("損益状況を表示します")
-    for index, row in data.iterrows():
-        ticker = row["ticker"]
-        purchase_price = row["getPrice"]
-        quantity = row["quantity"]
-        closing_price = calculate_closing_price(ticker, purchase_price, quantity)
-        assertValue = purchase_price * quantity
-        profit = profit = (closing_price - purchase_price) * quantity
-        profit_rate = calculate_profit_rate(ticker, purchase_price)
-        # output用に記入
-        output_data["ticker"].append(ticker)
-        output_data["getPrice"].append(purchase_price)
-        output_data["quantity"].append(quantity)
-        output_data["nowPrice"].append(closing_price)
-        output_data["assetValue"].append(assertValue)
-        output_data["profit"].append(profit)
-        output_data["profitRatio"].append(profit_rate)
-        profitJPY = convert_usd_to_jpy(profit)
-        if profit is not None:
-            st.subheader(
-                f"Ticker: {ticker}  Profit: {profit:.2f} USD ({profitJPY:.2f}YN)   ratio {profit_rate:.2f}"
+        st.warning("ticker,getPrice,quantity の要素のみのcsvファイルを用意して下さい")
+        st.header("損益状況を表示します")
+        for index, row in data.iterrows():
+            ticker = row["ticker"]
+            purchase_price = row["getPrice"]
+            quantity = row["quantity"]
+            closing_price = calculate_closing_price(ticker, purchase_price, quantity)
+            assertValue = purchase_price * quantity
+            profit = profit = (closing_price - purchase_price) * quantity
+            profit_rate = calculate_profit_rate(ticker, purchase_price)
+            # output用に記入
+            output_data["ticker"].append(ticker)
+            output_data["getPrice"].append(purchase_price)
+            output_data["quantity"].append(quantity)
+            output_data["nowPrice"].append(closing_price)
+            output_data["assetValue"].append(assertValue)
+            output_data["profit"].append(profit)
+            output_data["profitRatio"].append(profit_rate)
+            profitJPY = convert_usd_to_jpy(profit)
+            if profit is not None:
+                st.subheader(
+                    f"Ticker: {ticker}  Profit: {profit:.2f} USD ({profitJPY:.2f}YN)   ratio {profit_rate:.2f}"
+                )
+
+        st.header("直近1年間の配当金を表示します")
+        for index, row in data.iterrows():
+            ticker = row["ticker"]
+            purchase_price = row["getPrice"]
+            quantity = row["quantity"]
+            oneDividend = get_annual_dividends(ticker, quantity)
+            annual_dividend = oneDividend * quantity
+            dividend_yield = (oneDividend / purchase_price) * 100
+            # output用に記入
+            output_data["annualDividend"].append(annual_dividend)
+            output_data["dividendYield"].append(dividend_yield)
+
+            if profit is not None:
+                st.subheader(
+                    f"Ticker: {ticker} Annual Dividend {annual_dividend:.2f} dividendYield {dividend_yield:.2f}%"
+                )
+        df = pd.DataFrame(output_data)
+
+        sumProfit = sum(output_data["profit"])
+        sumProfitJPY = convert_usd_to_jpy(sumProfit)
+        sumProfitRatio = (
+            sum(output_data["profit"]) / sum(output_data["assetValue"])
+        ) * 100
+        sumDividend = sum(output_data["annualDividend"])
+        sumDividendJPY = convert_usd_to_jpy(sumDividend)
+        sumDividendYield = (sumDividend / sum(output_data["assetValue"])) * 100
+        st.header(f"sum  profit {sumProfit:.2f} ({sumProfitJPY:.2f}YN) %")
+        st.header(f"ProfitRatio {sumProfitRatio:.2f}%")
+        st.header(f"Dividends {sumDividend} ({sumDividendJPY:.2f}YN) %")
+        st.header(f"DividendYield{sumDividendYield:.2f} %")
+
+        # DataFrameをCSVファイルに書き込む
+        if st.button("Download CSV"):
+            csv_filename = "outputData.csv"
+            df.to_csv(csv_filename, index=False)
+            st.download_button(
+                label="Download CSV file",
+                data=df.to_csv().encode("utf-8"),
+                file_name=csv_filename,
+                mime="text/csv",
             )
-
-    st.header("直近1年間の配当金を表示します")
-    for index, row in data.iterrows():
-        ticker = row["ticker"]
-        purchase_price = row["getPrice"]
-        quantity = row["quantity"]
-        oneDividend = get_annual_dividends(ticker, quantity)
-        annual_dividend = oneDividend * quantity
-        dividend_yield = (oneDividend / purchase_price) * 100
-        # output用に記入
-        output_data["annualDividend"].append(annual_dividend)
-        output_data["dividendYield"].append(dividend_yield)
-
-        if profit is not None:
-            st.subheader(
-                f"Ticker: {ticker} Annual Dividend {annual_dividend:.2f} dividendYield {dividend_yield:.2f}%"
-            )
-    df = pd.DataFrame(output_data)
-
-    sumProfit = sum(output_data["profit"])
-    sumProfitJPY = convert_usd_to_jpy(sumProfit)
-    sumProfitRatio = (sum(output_data["profit"]) / sum(output_data["assetValue"])) * 100
-    sumDividend = sum(output_data["annualDividend"])
-    sumDividendJPY = convert_usd_to_jpy(sumDividend)
-    sumDividendYield = (sumDividend / sum(output_data["assetValue"])) * 100
-    st.header(f"sum  profit {sumProfit:.2f} ({sumProfitJPY:.2f}YN) %")
-    st.header(f"ProfitRatio {sumProfitRatio:.2f}%")
-    st.header(f"Dividends {sumDividend} ({sumDividendJPY:.2f}YN) %")
-    st.header(f"DividendYield{sumDividendYield:.2f} %")
-
-    # DataFrameをCSVファイルに書き込む
-    if st.button("Download CSV"):
-        csv_filename = "outputData.csv"
-        df.to_csv(csv_filename, index=False)
-        st.download_button(
-            label="Download CSV file",
-            data=df.to_csv().encode("utf-8"),
-            file_name=csv_filename,
-            mime="text/csv",
-        )
 
 
 if __name__ == "__main__":
