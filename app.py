@@ -52,9 +52,17 @@ def calculate_profit_rate(ticker, purchase_price):
 
 
 def get_annual_dividends(ticker, quantity):
-    end_date = datetime.now(pytz.utc).date() - timedelta(days=1)
+    end_date = datetime.now().date() - timedelta(days=1)
     start_date = end_date.replace(year=end_date.year - 1)
-    dividends = yf.Ticker(ticker).dividends.loc[start_date:end_date]
+    # yfinanceからデータを取得
+    ticker_data = yf.Ticker(ticker)
+    dividends = ticker_data.dividends
+
+    # タイムゾーン情報を付与してDatetimeIndexを作成
+    dividends.index = pd.to_datetime(dividends.index).tz_localize("UTC")
+
+    # 指定した期間のデータを抽出
+    dividends = dividends.loc[start_date:end_date]
     # st.write(dividends)
     annual_dividend = sum(dividends.values)
     return annual_dividend
