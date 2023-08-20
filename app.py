@@ -87,11 +87,12 @@ def main():
     }
     uploaded_file = st.file_uploader("CSVファイルを選択してください", type=["csv"])
 
+    st.warning("ticker,getPrice,quantity の要素のみのcsvファイルを用意して下さい")
+
     if uploaded_file is not None:
         # CSVファイルをDataFrameとして読み込む
         data = pd.read_csv(uploaded_file)
 
-        st.warning("ticker,getPrice,quantity の要素のみのcsvファイルを用意して下さい")
         st.header("損益状況を表示します")
         for index, row in data.iterrows():
             ticker = row["ticker"]
