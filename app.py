@@ -64,7 +64,7 @@ def get_annual_dividends(ticker, quantity):
 
 
 def main():
-    st.title("フォートポリオ分析")
+    st.title("asserts-report")
 
     output_data = {
         "ticker": [],
@@ -77,7 +77,7 @@ def main():
         "annualDividend": [],
         "dividendYield": [],
     }
-    uploaded_file = st.file_uploader("CSVファイルを選択してください", type=["csv"])
+    uploaded_file = st.file_uploader("choice your csv file", type=["csv"])
 
     st.warning("ticker,getPrice,quantity の要素のみのcsvファイルを用意して下さい")
 
@@ -85,7 +85,7 @@ def main():
         # CSVファイルをDataFrameとして読み込む
         data = pd.read_csv(uploaded_file)
 
-        st.header("損益状況を表示します")
+        st.header("Show Profit")
         for index, row in data.iterrows():
             ticker = row["ticker"]
             purchase_price = row["getPrice"]
@@ -108,7 +108,7 @@ def main():
                     f"Ticker: {ticker}  Profit: {profit:.2f} USD ({profitJPY:.2f}YN)   ratio {profit_rate:.2f}"
                 )
 
-        st.header("直近1年間の配当金を表示します")
+        st.header("Annual Dividends")
         for index, row in data.iterrows():
             ticker = row["ticker"]
             purchase_price = row["getPrice"]
@@ -134,7 +134,8 @@ def main():
         sumDividend = sum(output_data["annualDividend"])
         sumDividendJPY = convert_usd_to_jpy(sumDividend)
         sumDividendYield = (sumDividend / sum(output_data["assetValue"])) * 100
-        st.header(f"sum  profit {sumProfit:.2f} ({sumProfitJPY:.2f}YN) %")
+        st.header("--------------sum-------------------")
+        st.header(f"profit {sumProfit:.2f} ({sumProfitJPY:.2f}YN) %")
         st.header(f"ProfitRatio {sumProfitRatio:.2f}%")
         st.header(f"Dividends {sumDividend} ({sumDividendJPY:.2f}YN) %")
         st.header(f"DividendYield{sumDividendYield:.2f} %")
