@@ -1,5 +1,6 @@
 streamlit
 pandas
-Tokenizer
-janome
-Analyzer
+timedelta
+datetime
+yfinance
+pytz
