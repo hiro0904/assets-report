@@ -6,6 +6,9 @@
 
 ## 使い方
 
-### １、ホスティングサイトにアクセスする
+### １、ホスティングサイト(<https://assets-report.streamlit.app/)にアクセスする>
 
-### ２、あ
+### ２、CSVファイル(ticker,getPrice,quantity)を作成する
+
+### QQQ,300,100 内容は左のように記述する
+
